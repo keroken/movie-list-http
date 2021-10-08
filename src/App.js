@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { database } from './database';
 
 import MoviesList from './components/MoviesList';
+import AddMovie from './components/AddMovie';
 import './App.css';
 
 function App() {
@@ -12,7 +14,7 @@ function App() {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await fetch('https://swapi.dev/api/films');
+      const response = await fetch(`${database}/movies.json`);
       if (!response.ok) {
         throw new Error('Something went wrong...');
       }
@@ -37,6 +39,18 @@ function App() {
     fetchMoviesHandler();
   }, [fetchMoviesHandler]);
 
+  const addMovieHandler = async () => {
+    const response = await fetch(`${database}/movies.json`, {
+      method: 'POST',
+      body: JSON.stringify(movies),
+      headers: {
+        'Content-Type' : 'application/json'
+      }
+    });
+    const data = await response.json();
+    console.log(data);
+  }
+
   let content = <p>Found no movies</p>;
   if (movies.length > 0) {
     content = <MoviesList movies={movies} />;
@@ -50,6 +64,9 @@ function App() {
 
   return (
     <React.Fragment>
+      <section>
+        <AddMovie onAddMovie={addMovieHandler} />
+      </section>
       <section>
         <button onClick={fetchMoviesHandler}>Fetch Movies</button>
       </section>
